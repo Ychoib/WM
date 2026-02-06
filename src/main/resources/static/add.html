@@ -1,0 +1,373 @@
+﻿<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>자산 등록</title>
+    <style>
+      :root {
+        --bg-1: #0f1220;
+        --bg-2: #151a2b;
+        --card: #171d33;
+        --card-2: #0f1426;
+        --stroke: #2a3253;
+        --text: #e8ecff;
+        --muted: #a7b0d6;
+        --accent: #39c2ff;
+        --warning: #ffb74d;
+        --danger: #ff5c7a;
+        --good: #35d07f;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", "IBM Plex Sans", "Noto Sans KR", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 500px at 10% -10%, #1c2250 0%, transparent 60%),
+          radial-gradient(800px 600px at 90% 10%, #12314a 0%, transparent 55%),
+          linear-gradient(160deg, var(--bg-1), var(--bg-2));
+        min-height: 100vh;
+      }
+
+      .page {
+        padding: 32px 28px 48px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2a6bff, #34d2ff);
+        box-shadow: 0 10px 28px rgba(52, 210, 255, 0.35);
+      }
+
+      h1 {
+        font-size: 20px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .btn {
+        border: 1px solid var(--stroke);
+        background: linear-gradient(180deg, #1d2440, #141a2d);
+        color: var(--text);
+        padding: 9px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .btn.primary {
+        border-color: transparent;
+        background: linear-gradient(135deg, #2a6bff, #34d2ff);
+        color: #0b1022;
+        font-weight: 600;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 18px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--card), var(--card-2));
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow: 0 20px 40px rgba(6, 10, 25, 0.45);
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .section-title h2 {
+        font-size: 16px;
+        margin: 0;
+      }
+
+      .form {
+        display: grid;
+        gap: 12px;
+      }
+
+      label {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      input, select, textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        color: var(--text);
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      select, select option {
+        background-color: #111726;
+        color: var(--text);
+      }
+
+      textarea { min-height: 92px; resize: vertical; }
+
+      .row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        border: 1px solid var(--stroke);
+        color: var(--muted);
+      }
+
+      .tag.warning { border-color: rgba(255, 183, 77, 0.6); color: var(--warning); }
+      .tag.good { border-color: rgba(53, 208, 127, 0.6); color: var(--good); }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+
+      .side-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .side-item {
+        border: 1px solid var(--stroke);
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 13px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .side-item .title { font-weight: 600; margin-bottom: 6px; }
+      .side-item .meta { color: var(--muted); font-size: 12px; }
+
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+
+      @media (max-width: 640px) {
+        .row { grid-template-columns: 1fr; }
+        .topbar { flex-direction: column; align-items: flex-start; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>자산 등록</h1>
+            <div class="subtitle">만료일이 있는 자산을 등록해 리스크를 관리하세요</div>
+          </div>
+        </div>
+        <div>
+          <a class="btn" href="/index.html">대시보드</a>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="section-title">
+            <h2>기본 정보</h2>
+            <span class="tag warning">필수</span>
+          </div>
+          <form class="form" id="asset-form">
+            <div>
+              <label for="assetName">자산명</label>
+              <input id="assetName" name="assetName" placeholder="예: Gateway SSL" required />
+            </div>
+            <div class="row">
+              <div>
+                <label for="assetType">유형</label>
+                <select id="assetType" name="assetType">
+                  <option>SSL</option>
+                  <option>License</option>
+                  <option>Domain</option>
+                  <option>Contract</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="expireDate">만료일</label>
+                <input id="expireDate" name="expireDate" type="date" required />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="ownerTeam">소유 팀</label>
+                <input id="ownerTeam" name="ownerTeam" placeholder="예: 인프라팀" />
+              </div>
+              <div>
+                <label for="owner">담당자</label>
+                <input id="owner" name="owner" placeholder="예: 홍길동" />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="importance">중요도</label>
+                <select id="importance" name="importance">
+                  <option>High</option>
+                  <option>Medium</option>
+                  <option>Low</option>
+                </select>
+              </div>
+              <div>
+                <label for="notifyPolicy">알림 정책</label>
+                <select id="notifyPolicy" name="notifyPolicy"></select>
+              </div>
+            </div>
+            <div>
+              <label for="related">연결 서비스</label>
+              <input id="related" name="related" placeholder="예: ERP, Gateway, Billing" />
+            </div>
+            <div>
+              <label for="memo">메모</label>
+              <textarea id="memo" name="memo" placeholder="갱신 조건, 구매처, 비용 등"></textarea>
+            </div>
+            <div class="actions">
+              <button class="btn" type="reset">초기화</button>
+              <button class="btn primary" type="submit">등록</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <h2>최근 등록</h2>
+            <span class="tag good">새로 추가</span>
+          </div>
+          <div class="side-list" id="recent-list">
+            <div class="side-item">
+              <div class="title">로딩 중</div>
+              <div class="meta">-</div>
+            </div>
+          </div>
+          <p class="hint" style="margin-top: 14px;">최근 등록된 자산을 표시합니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('asset-form');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = {
+          name: document.getElementById('assetName').value.trim(),
+          type: document.getElementById('assetType').value,
+          expiresAt: document.getElementById('expireDate').value,
+          ownerTeam: document.getElementById('ownerTeam').value.trim(),
+          ownerName: document.getElementById('owner').value.trim(),
+          importance: document.getElementById('importance').value,
+          notifyPolicy: document.getElementById('notifyPolicy').value,
+          relatedServices: document.getElementById('related').value.trim(),
+          memo: document.getElementById('memo').value.trim()
+        };
+
+        try {
+          const response = await fetch('/api/assets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || '등록 실패');
+          }
+
+          const data = await response.json();
+          const id = data?.id;
+          if (id) {
+            window.location.href = `/edit.html?id=${id}`;
+          } else {
+            form.reset();
+            alert('등록 완료');
+          }
+        } catch (error) {
+          alert('등록 실패: ' + error.message);
+        }
+      });
+
+      const renderRecent = (items) => {
+        const container = document.getElementById('recent-list');
+        if (!items || items.length === 0) {
+          container.innerHTML = '<div class="side-item"><div class="title">등록된 자산 없음</div><div class="meta">-</div></div>';
+          return;
+        }
+        container.innerHTML = items.map(item => `
+          <div class="side-item">
+            <div class="title"><a href="/edit.html?id=${item.id}" style="color: inherit; text-decoration: none;">${item.name}</a></div>
+            <div class="meta">${item.type} · 만료 ${item.expiresAt}</div>
+          </div>
+        `).join('');
+      };
+
+      fetch('/api/assets/recent?limit=3')
+        .then(res => res.ok ? res.json() : Promise.reject(res.status))
+        .then(data => renderRecent(data))
+        .catch(() => renderRecent([]));
+
+      const policySelect = document.getElementById('notifyPolicy');
+      const renderPolicies = (items) => {
+        const options = ['미설정', ...(items || []).map(p => p.name)];
+        policySelect.innerHTML = options.map(name => `<option>${name}</option>`).join('');
+      };
+
+      fetch('/api/policies')
+        .then(res => res.ok ? res.json() : Promise.reject(res.status))
+        .then(data => renderPolicies(data))
+        .catch(() => renderPolicies([]));
+    </script>
+  </body>
+</html>
