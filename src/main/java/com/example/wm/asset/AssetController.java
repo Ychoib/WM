@@ -1,12 +1,12 @@
 package com.example.wm.asset;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,7 +24,8 @@ public class AssetController {
         if (request == null
             || request.name() == null || request.name().isBlank()
             || request.type() == null || request.type().isBlank()
-            || request.expiresAt() == null || request.expiresAt().isBlank()) {
+            || request.expiresAt() == null || request.expiresAt().isBlank()
+            || request.partId() == null || request.partId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "필수 값이 누락되었습니다.");
         }
         long id = assetRepository.insert(request);
@@ -47,7 +48,8 @@ public class AssetController {
         if (request == null
             || request.name() == null || request.name().isBlank()
             || request.type() == null || request.type().isBlank()
-            || request.expiresAt() == null || request.expiresAt().isBlank()) {
+            || request.expiresAt() == null || request.expiresAt().isBlank()
+            || request.partId() == null || request.partId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "필수 값이 누락되었습니다.");
         }
         int updated = assetRepository.update(id, request);

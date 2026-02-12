@@ -5,6 +5,6 @@ public record DashboardItem(
     String name,
     String type,
     String expiresAt,
-    String ownerTeam,
+    String partName,
     int daysLeft
 ) {}

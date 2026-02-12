@@ -19,16 +19,15 @@ public class AssetRepository {
         return jdbcTemplate.queryForObject(
             """
             INSERT INTO dbo.assets
-              (name, asset_type, expires_at, owner_team, owner_name, importance, notify_policy, related_services, memo, updated_at)
+              (name, asset_type, expires_at, part_id, importance, notify_policy, related_services, memo, updated_at)
             OUTPUT INSERTED.id
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, SYSUTCDATETIME())
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, SYSUTCDATETIME())
             """,
             Long.class,
             request.name(),
             request.type(),
             Date.valueOf(expiresAt),
-            request.ownerTeam(),
-            request.ownerName(),
+            request.partId(),
             request.importance(),
             request.notifyPolicy(),
             request.relatedServices(),
@@ -41,26 +40,27 @@ public class AssetRepository {
         return jdbcTemplate.queryForObject(
             """
             SELECT
-              id,
-              name,
-              asset_type,
-              CONVERT(varchar(10), expires_at, 23) AS expiresAt,
-              owner_team,
-              owner_name,
-              importance,
-              notify_policy,
-              related_services,
-              memo
-            FROM dbo.assets
-            WHERE id = ?
+              a.id,
+              a.name,
+              a.asset_type,
+              CONVERT(varchar(10), a.expires_at, 23) AS expiresAt,
+              a.part_id,
+              p.part_name,
+              a.importance,
+              a.notify_policy,
+              a.related_services,
+              a.memo
+            FROM dbo.assets a
+            LEFT JOIN dbo.parts p ON p.id = a.part_id
+            WHERE a.id = ?
             """,
             (rs, rowNum) -> new AssetDetail(
                 rs.getLong("id"),
                 rs.getString("name"),
                 rs.getString("asset_type"),
                 rs.getString("expiresAt"),
-                rs.getString("owner_team"),
-                rs.getString("owner_name"),
+                (Long) rs.getObject("part_id"),
+                rs.getString("part_name"),
                 rs.getString("importance"),
                 rs.getString("notify_policy"),
                 rs.getString("related_services"),
@@ -80,8 +80,7 @@ public class AssetRepository {
               name = ?,
               asset_type = ?,
               expires_at = ?,
-              owner_team = ?,
-              owner_name = ?,
+              part_id = ?,
               importance = ?,
               notify_policy = ?,
               related_services = ?,
@@ -92,8 +91,7 @@ public class AssetRepository {
             request.name(),
             request.type(),
             Date.valueOf(expiresAt),
-            request.ownerTeam(),
-            request.ownerName(),
+            request.partId(),
             request.importance(),
             request.notifyPolicy(),
             request.relatedServices(),
@@ -107,27 +105,28 @@ public class AssetRepository {
         return jdbcTemplate.query(
             """
             SELECT
-              id,
-              name,
-              asset_type,
-              CONVERT(varchar(10), expires_at, 23) AS expiresAt,
-              owner_team,
-              owner_name,
-              importance,
-              notify_policy,
-              related_services,
-              memo,
-              DATEDIFF(day, CONVERT(date, GETDATE()), expires_at) AS daysLeft
-            FROM dbo.assets
-            ORDER BY expires_at ASC
+              a.id,
+              a.name,
+              a.asset_type,
+              CONVERT(varchar(10), a.expires_at, 23) AS expiresAt,
+              a.part_id,
+              p.part_name,
+              a.importance,
+              a.notify_policy,
+              a.related_services,
+              a.memo,
+              DATEDIFF(day, CONVERT(date, GETDATE()), a.expires_at) AS daysLeft
+            FROM dbo.assets a
+            LEFT JOIN dbo.parts p ON p.id = a.part_id
+            ORDER BY a.expires_at ASC
             """,
             (rs, rowNum) -> new AssetDetail(
                 rs.getLong("id"),
                 rs.getString("name"),
                 rs.getString("asset_type"),
                 rs.getString("expiresAt"),
-                rs.getString("owner_team"),
-                rs.getString("owner_name"),
+                (Long) rs.getObject("part_id"),
+                rs.getString("part_name"),
                 rs.getString("importance"),
                 rs.getString("notify_policy"),
                 rs.getString("related_services"),
