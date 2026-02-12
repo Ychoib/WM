@@ -1,3 +1,3 @@
 package com.example.wm.dashboard;
 
-public record TeamRisk(String team, int count) {}
+public record TeamRisk(String part, int count) {}

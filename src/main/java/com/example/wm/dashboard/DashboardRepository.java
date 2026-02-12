@@ -46,21 +46,22 @@ public class DashboardRepository {
         List<DashboardItem> items = jdbcTemplate.query(
             """
             SELECT TOP 5
-              id,
-              name,
-              asset_type,
-              CONVERT(varchar(10), expires_at, 23) AS expiresAt,
-              owner_team,
-              DATEDIFF(day, CONVERT(date, GETDATE()), expires_at) AS daysLeft
-            FROM dbo.assets
-            ORDER BY expires_at ASC
+              a.id,
+              a.name,
+              a.asset_type,
+              CONVERT(varchar(10), a.expires_at, 23) AS expiresAt,
+              p.part_name,
+              DATEDIFF(day, CONVERT(date, GETDATE()), a.expires_at) AS daysLeft
+            FROM dbo.assets a
+            LEFT JOIN dbo.parts p ON p.id = a.part_id
+            ORDER BY a.expires_at ASC
             """,
             (rs, rowNum) -> new DashboardItem(
                 rs.getLong("id"),
                 rs.getString("name"),
                 rs.getString("asset_type"),
                 rs.getString("expiresAt"),
-                rs.getString("owner_team"),
+                rs.getString("part_name"),
                 rs.getInt("daysLeft")
             )
         );
@@ -68,16 +69,16 @@ public class DashboardRepository {
         List<TeamRisk> teamRisks = jdbcTemplate.query(
             """
             SELECT TOP 6
-              owner_team,
+              p.part_name AS part_name,
               COUNT(*) AS cnt
-            FROM dbo.assets
-            WHERE owner_team IS NOT NULL
-              AND DATEDIFF(day, CONVERT(date, GETDATE()), expires_at) BETWEEN 0 AND 90
-            GROUP BY owner_team
+            FROM dbo.assets a
+            JOIN dbo.parts p ON p.id = a.part_id
+            WHERE DATEDIFF(day, CONVERT(date, GETDATE()), a.expires_at) BETWEEN 0 AND 90
+            GROUP BY p.part_name
             ORDER BY cnt DESC
             """,
             (rs, rowNum) -> new TeamRisk(
-                rs.getString("owner_team"),
+                rs.getString("part_name"),
                 rs.getInt("cnt")
             )
         );
@@ -100,17 +101,18 @@ public class DashboardRepository {
         List<RecentChange> recentChanges = jdbcTemplate.query(
             """
             SELECT TOP 3
-              name,
-              asset_type,
-              owner_team,
-              CONVERT(varchar(16), created_at, 120) AS createdAt
-            FROM dbo.assets
-            ORDER BY created_at DESC
+              a.name,
+              a.asset_type,
+              p.part_name,
+              CONVERT(varchar(16), a.created_at, 120) AS createdAt
+            FROM dbo.assets a
+            LEFT JOIN dbo.parts p ON p.id = a.part_id
+            ORDER BY a.created_at DESC
             """,
             (rs, rowNum) -> new RecentChange(
                 rs.getString("name"),
                 rs.getString("asset_type"),
-                rs.getString("owner_team"),
+                rs.getString("part_name"),
                 rs.getString("createdAt")
             )
         );
